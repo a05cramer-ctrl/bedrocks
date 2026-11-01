@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>BEDROCK</title>
+<meta name="description" content="Creator fees stack into a buy wall at 70% of the 6-hour high. When $BEDROCK dips to it, the wall buys and burns.">
+<meta property="og:title" content="BEDROCK">
+<meta property="og:description" content="Every dip hits stone.">
+<meta property="og:image" content="og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#070f18">
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+/* Layout: full-bleed pixel night; title + distance meter left, 6h candles right, stone wall across the floor line, four plaques set into the rock */
+:root{--bg:#070f18;--bg2:#0a1622;--card:#0c1b28;--line:#1a3446;--ice:#8fe3ff;--hi:#e2fbff;--mint:#7ff2c8;--gold:#e6f7a2;--coral:#ff8f9f;--ink:#e6f6fb;--dim:#6f90a3;--px:'Silkscreen',ui-monospace,monospace;--mono:'Space Mono',ui-monospace,monospace;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{overflow-x:clip;background:var(--bg);color:var(--ink);font:14px/1.5 var(--mono);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.up{color:var(--mint)}.dn{color:var(--coral)}
+.top{position:fixed;inset:0 0 auto;z-index:30;display:flex;align-items:center;gap:24px;padding:12px max(22px,env(safe-area-inset-right,0px)) 12px max(22px,env(safe-area-inset-left,0px));background:linear-gradient(#070f18f2,#070f1800)}
+.brand{display:flex;align-items:center;gap:10px;font:700 20px var(--px);letter-spacing:.08em}
+.brand img{width:34px;height:34px;image-rendering:pixelated;box-shadow:0 0 0 2px var(--line)}
+.top nav{display:flex;gap:18px;font:400 12px var(--px);color:var(--dim);letter-spacing:.06em}
+.top nav a:hover{color:var(--hi)}
+.acts{margin-left:auto;display:flex;gap:10px;align-items:center}
+.btn{min-height:38px;padding:0 14px;font:700 12px var(--px);letter-spacing:.06em;background:var(--gold);color:#0b1405;box-shadow:0 0 0 2px #050b10,3px 3px 0 2px #050b10;display:inline-flex;align-items:center;gap:8px;transition:transform .08s}
+.btn:hover{transform:translate(-1px,-1px)}.btn:active{transform:translate(2px,2px);box-shadow:0 0 0 2px #050b10}
+.btn.ghost{background:transparent;color:var(--ice);box-shadow:0 0 0 2px var(--line)}
+.chip{min-height:38px;padding:0 12px;font:400 12px var(--mono);color:var(--ice);box-shadow:0 0 0 2px var(--line);display:inline-flex;align-items:center;gap:8px}
+.chip .k{color:var(--dim)}
+.hero{position:relative;height:max(100svh,700px);max-height:1100px;overflow:hidden;background:var(--bg)}
+#sky{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;display:block}
+.ov{position:absolute;z-index:2}
+.title{left:max(28px,env(safe-area-inset-left,0px));top:96px;max-width:min(520px,44vw)}
+.kick{font:400 12px var(--px);letter-spacing:.14em;color:var(--gold)}
+h1{font:700 clamp(36px,4.4vw,64px)/1 var(--px);margin-top:12px;letter-spacing:-.01em;text-shadow:0 3px 0 #050b10}
+h1 em{font-style:normal;color:var(--gold)}
+.lede{margin-top:14px;color:#a9c6d4;font-size:14px;max-width:420px}
+.lede b{color:var(--ink)}
+.plaques{left:50%;translate:-50% 0;bottom:24px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;width:min(1000px,calc(100% - 48px))}
+.plq{display:flex;flex-direction:column;gap:4px;padding:14px 16px;background:#08131ee8;box-shadow:0 0 0 2px var(--line),4px 4px 0 2px #03080d;min-width:0}
+.plq .k{font:400 11px var(--px);letter-spacing:.12em;color:var(--dim)}
+.plq .v{font:700 26px/1.1 var(--px);color:var(--hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plq .v i{font:400 12px var(--mono);font-style:normal;color:var(--dim)}
+.plq .v.idle{color:var(--dim);font-size:20px}
+.plq .s{font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tip{position:absolute;left:0;top:0;z-index:4;pointer-events:none;translate:-50% -100%;display:flex;flex-direction:column;align-items:center;padding:5px 9px;background:#070f18f0;box-shadow:0 0 0 2px var(--line);font-size:11.5px;white-space:nowrap}
+#tip b{font:700 12px var(--px)}
+.band{background:var(--bg2);border-top:2px solid var(--line)}
+section.blk{max-width:1180px;margin:0 auto;padding:80px max(28px,env(safe-area-inset-right,0px)) 80px max(28px,env(safe-area-inset-left,0px))}
+.sh{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:24px}
+.sh h2{font:700 clamp(30px,3.4vw,44px)/1 var(--px);margin-top:10px}
+.sh p,.sh .cnt{color:var(--dim);font-size:13px;max-width:440px}
+.empty{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;gap:12px;padding:34px;text-align:center;color:var(--dim);font-size:13px;box-shadow:inset 0 0 0 2px var(--line);background:var(--card)}
+.empty svg{image-rendering:pixelated}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.step{padding:20px;background:var(--card);box-shadow:0 0 0 2px var(--line),4px 4px 0 2px #03080d;display:flex;flex-direction:column;gap:10px}
+.step .n{font:700 12px var(--px);color:var(--gold);letter-spacing:.12em}
+.step h3{font:700 18px var(--px)}
+.step p{color:var(--dim);font-size:12.5px}
+.formula{margin-top:14px;padding:18px 20px;background:#06101a;box-shadow:inset 0 0 0 2px var(--line);font-size:13px;color:#b9d3df;overflow-x:auto}
+.formula code{font:700 13px var(--mono);color:var(--hi);white-space:nowrap}
+.calc{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;margin-top:14px}
+.calc>div{padding:22px;background:var(--card);box-shadow:0 0 0 2px var(--line),4px 4px 0 2px #03080d}
+.calc h3{font:700 17px var(--px);margin-bottom:6px}
+.sl{display:grid;grid-template-columns:150px 1fr 64px;gap:12px;align-items:center;margin-top:14px;font-size:12px;color:var(--dim)}
+.sl output{text-align:right;font:700 14px var(--px);color:var(--ink)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:8px;background:#06101a;box-shadow:inset 0 0 0 2px var(--line);outline:0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:var(--gold);box-shadow:0 0 0 2px #050b10;cursor:pointer}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;background:var(--gold);border:0;border-radius:0}
+.calc p{color:var(--dim);font-size:12.5px;margin-top:10px}
+.rules{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:0 36px}
+.rules li{display:grid;grid-template-columns:26px 1fr;padding:14px 0;border-bottom:2px solid var(--line);font-size:13.5px;color:#c4dbe5}
+.rules b{color:var(--ink)}
+footer{max-width:1180px;margin:0 auto;padding:36px max(28px,env(safe-area-inset-right,0px)) 52px max(28px,env(safe-area-inset-left,0px));display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;border-top:2px solid var(--line);color:var(--dim);font-size:12px}
+footer .lnk{display:flex;gap:16px;align-items:center;font:400 12px var(--px)}
+footer .lnk a:hover{color:var(--hi)}
+.disc{width:100%;font-size:11px;color:#4f6c7c}
+.sk{display:inline-block;height:1em;width:90px;background:linear-gradient(90deg,#10283a,#1b3c50,#10283a);background-size:200% 100%;animation:sk 1.2s steps(6) infinite;vertical-align:middle}
+.w60{width:60%}
+.sk-row .sk{width:100%;height:14px}.sk-card{min-height:110px;gap:10px}
+@keyframes sk{to{background-position:-200% 0}}
+#toast{position:fixed;z-index:50;left:50%;bottom:max(20px,env(safe-area-inset-bottom,0px));translate:-50% 16px;opacity:0;transition:.25s steps(4);padding:12px 16px;background:#0e2230;box-shadow:0 0 0 2px var(--gold),4px 4px 0 2px #03080d;font-size:13px;max-width:calc(100vw - 32px)}
+#toast.on{opacity:1;translate:-50% 0}
+@media (max-width:1000px){.top nav{display:none}}
+@media (max-width:760px){
+ .top{padding:10px 16px;gap:10px}.top .chip,.top [data-link=x]{display:none!important}
+ .hero{height:auto;max-height:none;min-height:0;display:flex;flex-direction:column;padding:78px 16px 16px;gap:14px;background:linear-gradient(#04090f,#0b1f2e)}
+ .hero #sky{display:none}
+ .mspace #sky{display:block;position:absolute;inset:0}
+ .ov{position:relative;inset:auto;translate:none;left:auto;right:auto;top:auto;bottom:auto;max-width:none}
+ .mspace{height:92vw;min-height:280px;position:relative;margin:0 -16px;order:3}
+ .plaques{width:100%;grid-template-columns:1fr;gap:10px}
+ h1{font-size:36px}
+ section.blk{padding:60px 16px}
+ .steps,.calc,.rules{grid-template-columns:1fr}
+ .sl{grid-template-columns:100px 1fr 56px}
+ footer{padding:32px 16px 48px}
+}
+@media (min-width:761px){.mspace{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.plaques{grid-template-columns:repeat(4,minmax(0,1fr));width:min(1180px,calc(100% - 48px))}
+.plq{background:#0a1a26ee;box-shadow:0 0 0 2px #2b6f8e,4px 4px 0 2px #03080d}
+#pWall{box-shadow:0 0 0 2px #7ff2c866,4px 4px 0 2px #03080d}#pWall .v{color:var(--mint)}
+.lede{max-width:440px}
+.meter{display:flex;flex-direction:column;gap:6px;margin-top:22px;max-width:400px;padding:16px 18px;background:#08131ee0;box-shadow:0 0 0 2px var(--line),4px 4px 0 2px #03080d}
+.meter .k{font:400 11px var(--px);letter-spacing:.12em;color:var(--dim)}
+.meter .big{font:700 clamp(30px,3.4vw,46px)/1 var(--px);color:var(--hi);text-shadow:0 0 24px #8fe3ff44}
+.meter .big.near{color:var(--gold)}.meter .big.hold{color:var(--mint);animation:hb .6s steps(2) infinite}
+.meter .big.idle{color:var(--dim);font-size:22px}
+@keyframes hb{50%{opacity:.55}}
+.meter .s{font-size:12px;color:var(--dim)}
+.bar{display:block;height:10px;background:#06101a;box-shadow:inset 0 0 0 2px var(--line);position:relative}
+.bar i{position:absolute;inset:2px auto 2px 2px;max-width:calc(100% - 4px);background:repeating-linear-gradient(90deg,var(--ice) 0 6px,transparent 6px 8px)}
+.tag{position:absolute;left:0;top:0;z-index:3;pointer-events:none;font:400 11px var(--px);letter-spacing:.08em;color:var(--dim);white-space:nowrap;padding:4px 8px;background:#070f18cc}
+.tag b{font-weight:700;color:var(--ink);margin-left:6px}
+#tagFloor{color:var(--mint);box-shadow:0 0 0 2px #7ff2c844}#tagFloor b{color:var(--mint)}
+#tip span i{font-style:normal}
+.holds{display:flex;flex-direction:column;box-shadow:0 0 0 2px var(--line)}
+.hrow{display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr 1fr;gap:12px;padding:13px 16px;background:var(--card);border-bottom:2px solid var(--line);font-size:12.5px;color:var(--dim)}
+.hrow:last-child{border-bottom:0}.hrow:hover{background:#10243a}
+.hrow b{color:var(--ink);font:700 13px var(--px)}.hrow .ht{color:var(--ink)}.hrow .up b{color:var(--mint)}
+.calc .big{font:700 34px/1.1 var(--px);color:var(--mint)}
+.ladder{display:flex;flex-direction:column;gap:5px;margin-top:14px}
+.ladder span{display:block;height:16px;background:repeating-linear-gradient(90deg,#3d8fb0 0 9px,#1e4f68 9px 10px);box-shadow:inset 0 1px 0 #8fe3ff;position:relative;min-width:40px}
+.ladder span i{position:absolute;left:calc(100% + 8px);top:0;font:400 11px/16px var(--mono);font-style:normal;color:var(--dim);white-space:nowrap}
+.ladder em{font-style:normal;font-size:11px;color:var(--dim)}
+.rules li::before{content:'■';color:var(--mint);font:400 11px var(--px);padding-top:3px}
+@media (max-width:760px){
+ .title{order:1}.mspace{order:2}.plaques{order:3}
+ .plaques{grid-template-columns:1fr 1fr;width:100%}
+ .plq .v{font-size:20px}
+ .meter{max-width:none}
+ .hrow{grid-template-columns:1fr 1fr;gap:4px 12px}.hrow .ht{grid-column:1/-1}
+ .tag{font-size:10px}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#top"><img src="bedrock-mark.png" alt=""><span>BEDROCK</span></a>
+  <nav><a href="#holds-s">Holds</a><a href="#how">How it works</a><a href="#rules">Rules</a></nav>
+  <div class="acts">
+    <button class="chip" data-ca hidden><span class="k">CA</span><span class="v"></span></button>
+    <a class="btn ghost" data-link="x" target="_blank" rel="noopener" hidden>X</a>
+    <a class="btn" data-link="buy" target="_blank" rel="noopener" hidden>Buy $BEDROCK</a>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <canvas id="sky" aria-label="Last 6 hours of $BEDROCK price above the stone wall at the floor"></canvas>
+  <div class="tag" id="tagHi"></div><div class="tag" id="tagFloor"></div>
+  <div class="ov title">
+    <div class="kick">Creator fees · buy wall · burn</div>
+    <h1>Every dip<br>hits <em>stone.</em></h1>
+    <p class="lede">Every creator fee stacks into a wall at <b><span data-pct></span> of the <span data-win></span> high</b>. When $BEDROCK falls to it, the wall <b>buys and burns</b>. Each hold leaves a receipt on Solscan.</p>
+    <div class="meter" id="meter"></div>
+  </div>
+  <div class="mspace"></div>
+  <div class="ov plaques">
+    <div class="plq" id="pPrice"></div>
+    <div class="plq" id="pFloor"></div>
+    <div class="plq" id="pWall"></div>
+    <div class="plq" id="pBurn"></div>
+  </div>
+  <div id="tip" hidden></div>
+</section>
+
+<div class="band">
+<section class="blk" id="holds-s">
+  <div class="sh"><div><div class="kick">Receipts, from chain</div><h2>Holds</h2></div><span class="cnt" id="holdsHead"></span></div>
+  <div class="holds" id="holds"></div>
+</section>
+
+<section class="blk" id="how">
+  <div class="sh"><div><div class="kick">One rule</div><h2>How it works</h2></div><p>No team wallet, no manual buybacks. The wall is just the creator fees, and it only ever spends at the floor.</p></div>
+  <div class="steps">
+    <div class="step"><span class="n">01 · STACK</span><h3>Fees become stone</h3><p>Every $BEDROCK trade pays a creator fee in <span data-quote></span> to the launch wallet. All of it stays there as the wall.</p></div>
+    <div class="step"><span class="n">02 · SET</span><h3>The floor follows the high</h3><p>The floor is <span data-pct></span> of the highest 5-minute close in the last 6 hours. A new high lifts the wall with it.</p></div>
+    <div class="step"><span class="n">03 · HOLD</span><h3>Dips get bought and burned</h3><p>Price touches the floor: the wall buys with <span data-chunk></span> of itself, burns the $BEDROCK, waits 30s, and repeats while price stays there.</p></div>
+  </div>
+  <div class="formula">Floor = <code>0.70 × max(5m close, last 6h)</code> · Buy when <code>price ≤ floor</code> · Chunk = <code>20% of the wall</code>, max 5% price impact, every 30s · Everything bought is burned.</div>
+  <div class="calc">
+    <div>
+      <h3>Run a dip</h3>
+      <div class="sl"><span>Wall (<span data-quote></span>)</span><input type="range" id="cWall" min="1000" max="200000" step="1000" value="40000"><output id="cWallV"></output></div>
+      <div class="sl"><span>Time on the floor</span><input type="range" id="cMin" min="1" max="15" step="1" value="3"><output id="cMinV"></output></div>
+      <div class="ladder" id="cLadder"></div>
+    </div>
+    <div><span class="kick">Bought and burned</span><div class="big" id="cOut"></div><p id="cNote"></p></div>
+  </div>
+</section>
+
+<section class="blk" id="rules">
+  <div class="sh"><div><div class="kick">Short version</div><h2>Rules</h2></div></div>
+  <ul class="rules">
+    <li><span>The wall is the <span data-quote></span> balance of the launch wallet. Nothing else is in it, and nothing leaves it except buys at the floor.</span></li>
+    <li><span>Floor = <b><span data-pct></span></b> of the highest 5-minute close over the last <b>6 hours</b>. Price from Jupiter, candles from GeckoTerminal.</span></li>
+    <li><span>At or under the floor the wall buys <b><span data-chunk></span></b> of itself every 30 seconds, never more than 5% price impact per buy.</span></li>
+    <li><span>Every $BEDROCK the wall buys is <b>burned</b>, in a transaction carrying the memo <code style="color:var(--ice)">BEDROCK-HOLD</code>.</span></li>
+    <li><span>Above the floor the wall does nothing. It just keeps growing with every trade.</span></li>
+    <li><span>The engine posts a <code style="color:var(--ice)">BEDROCK-WALL</code> heartbeat every 30 min. Launch wallet: <span data-creator></span></span></li>
+  </ul>
+</section>
+</div>
+
+<footer>
+  <a class="brand" href="#top"><img src="bedrock-mark.png" alt=""><span>BEDROCK</span></a>
+  <div class="lnk"><button class="chip" data-ca hidden><span class="k">CA</span><span class="v"></span></button><a data-link="x" target="_blank" rel="noopener" hidden>X</a><a data-link="buy" target="_blank" rel="noopener" hidden>Buy</a><a data-link="chart" target="_blank" rel="noopener" hidden>Chart</a></div>
+  <p class="disc">Memecoins are risky and can go to zero. A floor is not a guarantee: the wall only holds as long as there are fees in it, and a big enough sell goes straight through. Not financial advice.</p>
+</footer>
+<div id="toast" hidden></div>
+<script>(()=>{var J=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5].map(t=>(t+.5)/16),k={mint:"#7ff2c8",mintHi:"#d6fff0",coral:"#ff8f9f",ice:"#8fe3ff",hi:"#e2fbff",dim:"#2a5468",gold:"#e6f7a2"},D=t=>(t=Math.imul(t^t>>>16,2246822507),t=Math.imul(t^t>>>13,3266489909),((t^t>>>16)>>>0)/4294967295);function lt(t){let e=t.getContext("2d"),a=1,s=1,c=3,d=null,p=!0,f=0,H=!0,v={candles:[],hi:0,floor:0,price:0,strength:0,holds:[],demo:!0},T=[],E=new Map,I=-99,l={};function _(){let i=t.getBoundingClientRect();i.width&&(c=i.width<700?2:3,a=Math.max(60,Math.ceil(i.width/c)),s=Math.max(60,Math.ceil(i.height/c)),t.width=a,t.height=s,H=i.width>=761,l.x0=Math.round(H?a*.44:a*.05),l.x1=Math.round(a*.95),l.yHi=Math.round(s*(H?.27:.16)),l.yFl=Math.round(s*.66),l.n=Math.max(20,Math.min(72,Math.floor((l.x1-l.x0)/3))),wt())}function wt(){let i=e.createImageData(a,s),n=i.data,M=[4,9,15],y=[11,30,46];for(let r=0;r<s;r++)for(let u=0;u<a;u++){let g=(r*a+u)*4,w=r/s,C=J[(r&3)*4+(u&3)],b=M.map((F,A)=>F+(y[A]-F)*w);w*6%1>C&&(b=b.map(F=>F+3)),n[g]=b[0],n[g+1]=b[1],n[g+2]=b[2],n[g+3]=255}let h=H?[[.6,.1,.1],[.9,.24,.08],[.4,.06,.05]]:[[.12,.08,.2],[.78,.12,.18]];for(let[r,u,g]of h){let w=g*a;for(let C=Math.floor(u*s-w*.5);C<u*s+w*.35;C++)for(let b=Math.floor(r*a-w);b<r*a+w;b++){if(b<0||C<0||b>=a||C>=s)continue;let F=(b-r*a)/w,A=(C-u*s)/(w*.38),N=.18*Math.sin(b*.35+r*9)+.12*Math.sin(b*.9),q=1-(F*F+Math.max(0,-A-N)**2+Math.max(0,A)**2*3);if(q<=0)continue;let K=J[(C&3)*4+(b&3)],X=(C*a+b)*4;if(q*1.6>K){let G=A<-.2&&q*2.2>K;n[X]=G?52:26,n[X+1]=G?112:66,n[X+2]=G?140:90}}}for(let r=0;r<a*s/900;r++){let u=Math.floor(D(r*7+1)*a),g=Math.floor(D(r*13+5)*s*.55),w=(g*a+u)*4;n[w]=n[w+1]=n[w+2]=D(r)>.7?230:120}for(let r=l.yFl;r<s;r++)for(let u=0;u<a;u++){let g=(r*a+u)*4,w=(r-l.yFl)/(s-l.yFl+1),C=J[(r&3)*4+(u&3)],b=Math.sin(r*.55+Math.sin(u*.06)*2.2)*.5+.5,F=.55-w*.55+b*.18,A=F>C?[22,58,78]:F>C*.5?[14,38,54]:[8,22,33];n[g]=A[0],n[g+1]=A[1],n[g+2]=A[2]}d=i}let U=i=>v.hi?l.yHi+(v.hi-i)/(v.hi*.3)*(l.yFl-l.yHi):l.yFl,V=()=>(l.x1-l.x0)/l.n;function $(i,n,M,y,h){e.fillStyle=h,e.fillRect(Math.round(i),Math.round(n),M,y)}function xt(i){let n=v.strength,M=1+Math.round(n*5),y=4,h=10,r=v.price&&v.floor?Math.max(0,1-(v.price/v.floor-1)/.12):0;for(let g=0;g<M;g++){let w=l.yFl+1+g*y,C=g%2?h/2:0;for(let b=-C;b<a;b+=h){let F=g*1e3+Math.floor((b+C)/h),A=D(F+99);if(E.has(F)&&i-E.get(F)<8)continue;let N=g===0?1:1-g/(M+1),q=A>.35+n*.65,K=q?"#1e4f68":N>.75?"#5fb8d6":N>.45?"#3d8fb0":"#2b6f8e";$(b+1,w,h-1,y-1,K),$(b+1,w,h-1,1,q?"#2b6f8e":"#8fe3ff"),q&&$(b+3+Math.floor(A*4),w+1,1,2,"#0c2533")}}let u=.35+n*.5+r*.15*(1+Math.sin(i*8));e.globalAlpha=Math.min(1,u),$(0,l.yFl,a,1,k.mint),e.globalAlpha=Math.min(1,u)*.35,$(0,l.yFl-1,a,1,k.mint),$(0,l.yFl-2,a,1,k.mint),e.globalAlpha=1}function $t(){for(let i=l.x0-6;i<l.x1+2;i+=3)$(i,l.yHi,2,1,"#2a5468")}function vt(i){let n=v.candles.slice(-l.n),M=V(),y=l.n-n.length;for(let h=0;h<n.length;h++){let r=n[h],u=l.x0+(h+y)*M,g=r.c>=r.o,w=g?k.mint:k.coral,C=W(U(r.o)),b=W(U(r.c)),F=W(U(r.h)),A=W(U(r.l));e.globalAlpha=.55+.45*((h+y)/l.n),$(u+1,Math.min(F,A),1,Math.max(1,Math.abs(A-F)),g?"#3d9c86":"#9c4f5b"),$(u,Math.min(C,b),Math.max(2,Math.floor(M)-1),Math.max(1,Math.abs(b-C)),w)}e.globalAlpha=1;for(let h of v.holds){let r=n.findIndex(w=>w.t<=h.t&&h.t<w.t+300);if(r<0)continue;let u=Math.round(l.x0+(r+y)*M),g=l.yFl-6-Math.round(2*Math.abs(Math.sin(i*3+r)));nt(u,g,k.mint)}}let W=i=>Math.max(l.yHi-30,Math.min(l.yFl+14,Math.round(i)));function nt(i,n,M){$(i,n,1,5,M),$(i-1,n+1,3,1,M),$(i-2,n+2,5,1,M)}function Ht(i){if(!v.price)return;let n=W(U(v.price)),M=Math.round(l.x1+2);for(let h=l.x0;h<M;h+=2)e.globalAlpha=.25,$(h,n,1,1,k.hi);e.globalAlpha=1;let y=1+Math.round(Math.sin(i*5)*.6+.6);$(M-y,n-y,1+y*2,1+y*2,"#0b1f2e"),$(M-1,n-1,3,3,k.hi)}function ot(i){I=i;let n=l.x1-4,M=l.yFl;for(let r=0;r<26;r++){let u=Math.PI+Math.random()*Math.PI;T.push({x:n,y:M,vx:Math.cos(u)*(.6+Math.random()*1.6),vy:Math.sin(u)*(1+Math.random()*1.8),life:1,col:Math.random()<.6?k.mint:k.hi})}let y=10,h=Math.floor((n+0)/y);E.set(h,i),E.set(1e3+h,i)}function Ct(i){T=T.filter(n=>(n.life-=i*.9)>0);for(let n of T)n.x+=n.vx,n.y+=n.vy,n.vy+=.12,n.y>l.yFl&&(n.y=l.yFl,n.vy*=-.4),e.globalAlpha=Math.min(1,n.life*1.5),$(n.x,n.y,1,1,n.col);e.globalAlpha=1}let Rt=0;function Ft(i){let n=i%7/7,M=l.x1-4;if(n<.45){let y=n/.45,h=l.yHi+(l.yFl-6-l.yHi)*y*y;$(M,h,1,5,k.coral),$(M-1,h+3,3,1,k.coral),$(M-2,h+2,5,1,k.coral)}else if(n<.47)i-I>3&&ot(i);else if(n<.8){let y=(n-.47)/.33,h=l.yFl-6-Math.sin(y*Math.PI)*(l.yFl-l.yHi)*.45;e.globalAlpha=1-y*.3,nt(M,Math.round(h),k.mint),e.globalAlpha=1}}let at=0;function st(i){if(f=requestAnimationFrame(st),!p||!d)return;let n=i/1e3,M=Math.min(.05,n-at||.016);at=n,e.putImageData(d,0,0);for(let h=0;h<6;h++){let r=Math.floor(n*.7+h*3.3),u=Math.floor(D(r*31+h)*a),g=Math.floor(D(r*17+h)*s*.5);e.globalAlpha=Math.sin((n*.7+h*3.3)%1*Math.PI),$(u,g,1,1,k.hi)}e.globalAlpha=1,$t(),vt(n),xt(n),Ht(n),v.demo&&Ft(n);let y=n-I<.25?Math.round(Math.sin(n*90)):0;t.style.transform=y?`translateY(${y}px)`:"",Ct(M)}return f=requestAnimationFrame(st),_(),{resize:_,setRunning(i){p=i},set(i){Object.assign(v,i)},hit(){ot(performance.now()/1e3)},lines(){let i=t.getBoundingClientRect(),n=i.height/s;return{hi:l.yHi*n,floor:l.yFl*n,x1:l.x1*(i.width/a),x0:l.x0*(i.width/a),w:i.width}},hover(i,n){let M=t.getBoundingClientRect(),y=(i-M.left)/M.width*a,h=v.candles.slice(-l.n),r=l.n-h.length,u=Math.floor((y-l.x0)/V())-r;return u>=0&&u<h.length?{c:h[u],x:M.left+(l.x0+(u+r+.5)*V())*M.width/a}:null}}}var x=window.BEDROCK_CFG||{},dt=/^[1-9A-HJ-NP-Za-km-z]{32,44}$/,Y=dt.test(x.CA||""),z=dt.test(x.CREATOR||""),O=x.QUOTE_SYMBOL||"STONK",L=x.FLOOR_PCT||.7,S=x.WINDOW_H||6,tt=x.CHUNK_PCT||.2,m=t=>document.querySelector(t),it=t=>t?t.slice(0,4)+"\u2026"+t.slice(-4):"",rt=t=>String(t).padStart(2,"0"),At=t=>{let e=new Date(t*1e3);return rt(e.getHours())+":"+rt(e.getMinutes())},ft=t=>{let e=Date.now()/1e3-t;return e<90?Math.round(e)+"s ago":e<5400?Math.round(e/60)+"m ago":e<129600?Math.round(e/3600)+"h ago":Math.round(e/86400)+"d ago"},R=t=>t==null||!isFinite(t)?"\u2014":Math.abs(t)>=1e9?(t/1e9).toFixed(2)+"B":Math.abs(t)>=1e6?(t/1e6).toFixed(2)+"M":Math.abs(t)>=1e4?(t/1e3).toFixed(1)+"k":Math.abs(t)>=100?t.toFixed(0):Math.abs(t)>=1?t.toFixed(2):t.toFixed(4),B=t=>{if(t==null||!isFinite(t))return"\u2014";if(t>=1e3)return"$"+Math.round(t).toLocaleString("en-US");if(t>=1)return"$"+t.toFixed(2);if(t===0)return"$0";let e=Math.floor(Math.log10(t));return"$"+t.toFixed(Math.min(12,3-e))};(function(){let t=x.CA||"",e=x.BUY||(t?`https://stonkfun.xyz/token/${t}`:""),a=x.CHART||(t?`https://gmgn.ai/sol/token/${t}`:""),s=(c,d)=>document.querySelectorAll(`[data-link=${c}]`).forEach(p=>{d?(p.href=d,p.hidden=!1):p.hidden=!0});s("x",x.X),s("buy",e),s("chart",a),document.querySelectorAll("[data-ca]").forEach(c=>{if(!t){c.hidden=!0;return}c.hidden=!1,c.querySelector(".v").textContent=it(t),c.onclick=()=>kt(t,"$BEDROCK address copied")}),document.querySelectorAll("[data-quote]").forEach(c=>c.textContent=O),document.querySelectorAll("[data-pct]").forEach(c=>c.textContent=Math.round(L*100)+"%"),document.querySelectorAll("[data-win]").forEach(c=>c.textContent=S+"-hour"),document.querySelectorAll("[data-chunk]").forEach(c=>c.textContent=Math.round(tt*100)+"%"),document.querySelectorAll("[data-creator]").forEach(c=>{c.innerHTML=z?`<a href="https://solscan.io/account/${x.CREATOR}" target="_blank" rel="noopener">${it(x.CREATOR)}</a>`:"set in config.js"})})();function kt(t,e){try{navigator.clipboard.writeText(t).then(()=>Q(e),()=>Q(t))}catch{Q(t)}}var ct;function Q(t){let e=m("#toast");e.textContent=t,e.hidden=!1,requestAnimationFrame(()=>e.classList.add("on")),clearTimeout(ct),ct=setTimeout(()=>{e.classList.remove("on"),setTimeout(()=>e.hidden=!0,250)},3200)}var ut=matchMedia("(max-width: 760px)");function pt(){let t=m("#sky"),e=ut.matches?m(".mspace"):m(".hero");t.parentElement!==e&&e.prepend(t)}pt();var P=lt(m("#sky"));ut.addEventListener("change",()=>{pt(),P.resize(),et()});new ResizeObserver(()=>{P.resize(),et()}).observe(m("#sky"));new IntersectionObserver(([t])=>P.setRunning(t.isIntersecting)).observe(m(".hero"));function et(){let t=m("#sky"),e=P.lines(),a=m(".hero").getBoundingClientRect(),s=t.getBoundingClientRect(),c=s.top-a.top,d=s.left-a.left,p=m("#tagHi"),f=m("#tagFloor");p.style.transform=`translate(${d+e.x0}px, ${c+e.hi-26}px)`,f.style.transform=`translate(${d+e.x1}px, ${c+e.floor-30}px) translateX(-100%)`}m("#sky").addEventListener("pointermove",t=>{let e=P.hover(t.clientX,t.clientY),a=m("#tip");if(!e){a.hidden=!0;return}let s=m(".hero").getBoundingClientRect();a.hidden=!1,a.style.transform=`translate(${e.x-s.left}px, ${t.clientY-s.top-16}px)`;let c=e.c,d=(c.c/c.o-1)*100;a.innerHTML=`<b>${At(c.t)}</b><span>${B(c.c)} <i class="${d>=0?"up":"dn"}">${d>=0?"+":""}${d.toFixed(1)}%</i></span><span>${o.floor?((c.l/o.floor-1)*100).toFixed(1)+"% above floor at low":""}</span>`});m("#sky").addEventListener("pointerleave",()=>{m("#tip").hidden=!0});var o={candles:[],hi:0,floor:0,price:0,pair:"",wall:null,quoteUsd:null,holds:[],beat:0,err:!1,demo:!Y};function Tt(){let t=Math.floor(Date.now()/3e5)*300,e=9e-4,a=7,s=()=>(a=a*16807%2147483647)/2147483647,c=f=>f<=24?42e-5+(e-42e-5)*Math.pow(f/24,1.6):f<=46?e-(e-e*L)*Math.pow((f-24)/22,.9):f<=53?e*L+(e*.84-e*L)*Math.sin((f-46)/7*Math.PI/2):e*(.82+.035*Math.sin(f*.7)-(f-53)*.002),d=[],p=c(0);for(let f=0;f<72;f++){let H=f===24?e:f===46?e*L:c(f)*(1+(s()-.5)*.03);d.push({t:t-(71-f)*300,o:p,c:H,h:Math.max(p,H)*(1+s()*.015),l:f===46?H:Math.min(p,H)*(1-s()*.015)}),p=H}return d}async function Mt(){if(Y){try{if(!o.pair){let d=await(await fetch(`https://api.dexscreener.com/token-pairs/v1/solana/${x.CA}`)).json(),p=(Array.isArray(d)?d:[]).sort((f,H)=>(H.liquidity?.usd||0)-(f.liquidity?.usd||0))[0];if(!p){o.err="no pair yet",j();return}o.pair=p.pairAddress,o.price||(o.price=+p.priceUsd||0)}let e=(await(await fetch(`https://api.geckoterminal.com/api/v2/networks/solana/pools/${o.pair}/ohlcv/minute?aggregate=5&limit=100&currency=usd&token=${x.CA}`)).json())?.data?.attributes?.ohlcv_list||[],a=new Map;for(let[d,p,f,H,v]of e)a.set(d,{t:d,o:+p,h:+f,l:+H,c:+v});let s=Date.now()/1e3-S*3600;o.candles=[...a.values()].sort((d,p)=>d.t-p.t);let c=o.candles.filter(d=>d.t>=s);o.hi=c.length?Math.max(...c.map(d=>d.c)):0,o.floor=o.hi*L,o.err=!1}catch{o.err="chart unavailable"}j()}}async function mt(){let t=[Y&&x.CA,x.QUOTE].filter(Boolean).join(",");try{let e=await(await fetch(`https://lite-api.jup.ag/price/v3?ids=${t}`)).json();Y&&e?.[x.CA]?.usdPrice&&(o.price=e[x.CA].usdPrice),e?.[x.QUOTE]?.usdPrice&&(o.quoteUsd=e[x.QUOTE].usdPrice)}catch{}j()}var Z=null;async function yt(){if(z){try{let t=await fetch(`/api/wall?creator=${x.CREATOR}&quote=${x.QUOTE}`);if(!t.ok)throw 0;let e=await t.json();o.wall=e.wall,o.holds=e.holds||[],o.beat=e.beat||0;let a=new Set(o.holds.map(s=>s.sig));Z&&o.holds.some(s=>!Z.has(s.sig))&&(P.hit(),Q("The wall just held. Bought and burned.")),Z=a}catch{}j(),gt()}}function j(){let t=o.demo,e=t?o.candles.length?o.candles:o.candles=Tt():o.candles;t&&!o.hi&&(o.hi=Math.max(...e.map(T=>T.c)),o.floor=o.hi*L,o.price=e.at(-1).c);let a=o.wall,s=a!=null&&o.quoteUsd?a*o.quoteUsd:null,c=t?.6:s==null?.05:Math.max(.05,Math.min(1,Math.log10(1+s)/4));P.set({candles:e,hi:o.hi,floor:o.floor,price:o.price,strength:c,demo:t,holds:t?[{t:e[46].t},{t:e[47].t}]:o.holds}),et(),m("#tagHi").innerHTML=o.hi?`${S}H HIGH <b>${B(o.hi)}</b>`:"",m("#tagFloor").innerHTML=o.floor?`FLOOR <b>${B(o.floor)}</b>`:"";let d=o.price&&o.floor?(o.price/o.floor-1)*100:null,p=m("#meter");if(t)p.innerHTML='<span class="k">Distance to the wall</span><span class="big idle">not live yet</span><span class="s">goes live with the CA. Chart above is a demo of the mechanic.</span>';else if(d==null)p.innerHTML=`<span class="k">Distance to the wall</span><span class="big"><i class="sk"></i></span><span class="s">${o.err||"reading the last "+S+" hours"}</span>`;else{let T=Math.max(2,Math.min(100,100-d/.43));p.innerHTML=`<span class="k">Distance to the wall</span><span class="big ${d<=0?"hold":d<8?"near":""}">${d<=0?"ON THE WALL":"\u2212"+d.toFixed(1)+"%"}</span><span class="bar"><i style="width:${T}%"></i></span><span class="s">${d<=0?"price is at the floor. the wall is buying.":"price has to fall this much before the wall buys"}</span>`}let f=(T,E,I,l,_="")=>{m(T).innerHTML=`<span class="k">${E}</span><span class="v ${_}">${I}</span><span class="s">${l}</span>`},H=o.holds.reduce((T,E)=>T+E.burned,0),v=o.holds.reduce((T,E)=>T+E.spent,0);if(t){f("#pPrice","Price","not live","live from Jupiter once launched","idle"),f("#pFloor","Floor",`${Math.round(L*100)}% <i>of ${S}h high</i>`,"moves up as the price makes new highs"),f("#pWall","The wall","0 <i>"+O+"</i>","every creator fee is added to it","idle"),f("#pBurn","Held &amp; burned","0 <i>holds</i>","every hold is a receipt on Solscan","idle");return}f("#pPrice","Price",o.price?B(o.price):'<i class="sk"></i>',o.hi?`${((o.price/o.hi-1)*100).toFixed(1)}% from the ${S}h high`:"live from Jupiter"),f("#pFloor","Floor",o.floor?B(o.floor):'<i class="sk"></i>',`${Math.round(L*100)}% of the ${S}h high close`),f("#pWall","The wall",a==null?z?'<i class="sk"></i>':"\u2014":`${R(a)} <i>${O}</i>`,s!=null?`\u2248 ${B(s)} waiting at the floor`:z?"creator fees in the launch wallet":"launch wallet not set yet"),f("#pBurn","Held &amp; burned",`${o.holds.length} <i>holds</i>`,o.holds.length?`${R(H)} $BEDROCK burned for ${R(v)} ${O}`:o.beat?`engine alive \xB7 checked ${ft(o.beat)}`:"no dip has reached the wall yet")}function gt(){let t=m("#holds");if(!z){t.innerHTML=`<div class="empty">${ht}<span>Every time the wall buys, the receipt lands here: floor, fill price, ${O} spent, $BEDROCK burned.</span></div>`;return}let e=o.holds.reduce((s,c)=>s+c.burned,0),a=o.holds.reduce((s,c)=>s+c.spent,0);m("#holdsHead").textContent=o.holds.length?`${o.holds.length} holds \xB7 ${R(a)} ${O} spent \xB7 ${R(e)} burned`:o.beat?`engine last seen ${ft(o.beat)}`:"",t.innerHTML=o.holds.length?o.holds.map(s=>`<a class="hrow" href="https://solscan.io/tx/${s.sig}" target="_blank" rel="noopener">
+      <span class="ht">${new Date(s.t*1e3).toLocaleString([],{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})}</span>
+      <span>floor <b>${B(s.floor)}</b></span><span>filled <b>${B(s.fill)}</b></span><span>spent <b>${R(s.spent)}</b> ${O}</span><span class="up">burned <b>${R(s.burned)}</b></span></a>`).join(""):`<div class="empty">${ht}<span>No dip has reached the wall yet. The first hold shows up here with its receipt.</span></div>`}var ht='<svg viewBox="0 0 16 12" width="56" height="42" shape-rendering="crispEdges"><path fill="#3d8fb0" d="M0 7h16v5H0z"/><path fill="#8fe3ff" d="M0 7h16v1H0z"/><path fill="#1e4f68" d="M5 8h1v4H5zM11 8h1v4h-1zM0 10h16v1H0z"/><path fill="#7ff2c8" d="M7 0h2v1h1v1h1v1H9v3H7V3H5V2h1V1h1z"/></svg>';function bt(){let t=+m("#cWall").value,e=+m("#cMin").value,a=Math.max(1,Math.floor(e*60/30)),s=t,c=0,d=[];for(let p=0;p<a&&s>1;p++){let f=s*tt;c+=f,s-=f,p<8&&d.push(f)}m("#cWallV").textContent=R(t),m("#cMinV").textContent=e+"m",m("#cOut").textContent=R(c)+" "+O,m("#cLadder").innerHTML=d.map((p,f)=>`<span style="width:${Math.max(3,p/t*100*4)}%"><i>${R(p)}</i></span>`).join("")+(a>8?`<em>+${a-8} more chunks</em>`:""),m("#cNote").textContent=`A dip that sits on the floor for ${e} min gets ${a} buys, ${Math.round(tt*100)}% of what's left each time. ${R(s)} ${O} stays in the wall for the next dip, plus every new fee.`}["#cWall","#cMin"].forEach(t=>m(t).addEventListener("input",bt));bt();j();gt();Mt();setInterval(Mt,6e4);mt();setInterval(mt,1e4);yt();setInterval(yt,3e4);})();
+</script>
+</body>
+</html>
